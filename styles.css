@@ -1,0 +1,104 @@
+/* Add padding to containers */
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial;
+}
+
+.container {
+    max-width: 400px;
+    padding: 16px;
+    margin: auto;
+    padding-top: 50px;
+}
+
+/* Full-width input fields */
+input[type=text], input[type=password] {
+    width: 100%;
+    padding: 15px;
+    margin: 5px 0 22px 0;
+    display: inline-block;
+    border: none;
+    background: #f1f1f1;
+}
+
+input[type=text]:focus, input[type=password]:focus {
+    background-color: #ddd;
+    outline: none;
+}
+
+h1 {
+    margin-bottom: 30px;
+}
+
+/* Overwrite default styles of hr */
+hr {
+    border: 1px solid #f1f1f1;
+    margin-bottom: 25px;
+}
+
+/* Set a style for the submit/register button */
+.registerbtn {
+    background-color: #04AA6D;
+    color: white;
+    padding: 16px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    opacity: 0.9;
+}
+
+.registerbtn:hover {
+    opacity:1;
+}
+
+.signin {
+
+    text-align: center;
+}
+
+.to-register {
+    display: inline-block;
+    margin-bottom: 20px;
+}
+
+.header-line {
+    border-bottom: 2px solid #c4c4c4;
+    padding: 10px;
+    background-color: #fff;
+
+}
+
+.header-line form {
+    display: flex;
+    width: 100%;
+    justify-content: flex-end;
+    column-gap: 10px;
+}
+
+.header-line form input {
+    border: none;
+    padding: 5px 10px;
+    background-color: #fff;
+    border: 2px solid #ffca00;
+    cursor: pointer;
+}
+
+.header-line form input:hover {
+    color: #fff;
+    background-color: #ffca00;
+}
+
+.header-line form input:last-child {
+    background-color: #505050;
+    color: #fff;
+}
+
+.header-line form input:last-child:hover {
+    color: #ffca00;
+    background-color: #000;
+}

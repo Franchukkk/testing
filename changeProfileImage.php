@@ -19,7 +19,7 @@
 //
 //    updateImg($_FILES['profileImage'], $_FILES['profileImage']['size']);
 
-//
+/
 
 
 

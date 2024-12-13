@@ -1,19 +1,11 @@
 <?php
 session_start();
-require_once 'createUsersArr.php';
+
+require_once "getAllTestsFunction.php";
+require_once "profileDataPreparation.php";
 require_once 'themeFunction.php';
+
 themeFunction();
-
-if (isset($_SESSION['isLogin']) && $_SESSION['isLogin'] == true) {
-    header("Location: profile.php");
-}
-
-if (isset($_SESSION["loginStatus"])) {
-    echo $_SESSION["loginStatus"];
-    $_SESSION["loginStatus"] = '';
-}
-
-
 ?>
 
 <!doctype html>
@@ -27,11 +19,17 @@ if (isset($_SESSION["loginStatus"])) {
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <form action="checkLogin.php" method="POST">
+    <form action="profile.php" method="POST">
         <div class="container">
             <h1>Увійдіть</h1>
+            <?php
+                if (isset($_SESSION["loginStatus"])) {
+                    echo $_SESSION["loginStatus"] . "<br>";
+                    $_SESSION["loginStatus"] = '';
+                }
+            ?>
             <label for="email"><b>Email</b></label>
-            <input type="text" name="email" id="email" value="<?= $newUsersArr[$_SESSION["username"]]["email"] ?? '' ?>" placeholder="email" required>
+            <input type="text" name="email" id="email" value="<?= isset($_SESSION["username"]) ? $newUsersArr[$_SESSION["username"]]["email"] : ''?>" placeholder="email" required>
             <label for="psw"><b>Password</b></label>
             <input type="text" name="password" id="psw" placeholder="password" required>
             <a class="to-register" href="registration.php">Зареєструватися?</a>

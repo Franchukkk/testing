@@ -79,3 +79,8 @@ h1, h2 {
     display: block;
     margin-bottom: 30px;
 }
+
+.best-result {
+    background-color: #ffd700;
+    font-weight: bold;
+}

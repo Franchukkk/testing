@@ -1,7 +1,11 @@
 <?php
+// Processing of user test results
 session_start();
 require 'testInfo.php';
+require_once "csvfunctions.php";
 date_default_timezone_set("Europe/Kyiv");
+
+
 
 $correctAnswers = 0;
 
@@ -12,20 +16,7 @@ foreach ($questions as $question) {
     }
 }
 
-$stream = fopen("csv/users.csv", "r");
-$usersData = [];
-while ($row = fgetcsv($stream)) {
-    $usersData[] = $row;
-}
-fclose($stream);
-
-$newUsersArr = [];
-
-foreach ($usersData as $user) {
-    $newUsersArr[$user[0]]["username"] = $user[0];
-    $newUsersArr[$user[0]]["email"] = $user[1];
-    $newUsersArr[$user[0]]["password"] = $user[2];
-}
+//Calculation of results
 
 $_SESSION["correctAnswers"] = $correctAnswers;
 $_SESSION["totalQuestions"] = count($_SESSION["shuffledQuestions"]);
@@ -34,54 +25,48 @@ $_SESSION["score"] = round((($_SESSION["percentage"]) * 12) / 100);
 $_SESSION["testDate"] = date("d.m.Y H:i:s");
 $_SESSION["testDuration"] = gmdate("H:i:s", time() - $_SESSION["timeOfStartingTest"]);
 
-//foreach ($usersData as &$user) {
-//    if ($user[0] == $_SESSION["username"]) {
-//        $user[] = [
-//            "testDate" => $_SESSION["testDate"],
-//            "correctAnswers" => $_SESSION["correctAnswers"],
-//            "percentage" => $_SESSION["percentage"],
-//            "score" => $_SESSION["score"],
-//            "testDuration" => $_SESSION["testDuration"],
-//        ];
-//        break;
-//    }
-//}
+$newResult = [
+    "testDate" => $_SESSION["testDate"],
+    "correctAnswers" => $_SESSION["correctAnswers"],
+    "percentage" => $_SESSION["percentage"],
+    "score" => $_SESSION["score"],
+    "testDuration" => $_SESSION["testDuration"],
+];
 
-foreach ($usersData as $index => $user) {  // Використовуємо індекс для доступу до елемента масиву
-    if ($user[0] == $_SESSION["username"]) {
-        // Створюємо асоціативний масив з результатами тесту
-        $testResults = [
-            "testDate" => $_SESSION["testDate"],
-            "correctAnswers" => $_SESSION["correctAnswers"],
-            "percentage" => $_SESSION["percentage"],
-            "score" => $_SESSION["score"],
-            "testDuration" => $_SESSION["testDuration"],
-        ];
+// recording the results in a csv file
 
-        // Додаємо результат тесту до кінця масиву $user
-        $usersData[$index][] = json_encode($testResults);  // Використовуємо індекс для змінення даних
-        break;
+$filePath = "csv/usersResults.csv";
+$usersResults = [];
+
+try {
+    $data = readCsv($filePath);
+
+    if (empty($data)) {
+        throw new Exception("Немає інформації у файлі $filePath");
     }
+
+    $usersResults = [];
+    foreach ($data as $row) {
+        $username = $row[0];
+        $results = isset($row[1]) ? json_decode($row[1], true) : [];
+        $usersResults[$username] = $results;
+    }
+} catch (Exception $e) {
+    error_log($e->getMessage());
 }
 
-// Перезаписуємо файл CSV
-$stream = fopen("csv/users.csv", "w");
-foreach ($usersData as $user) {
-    fputcsv($stream, $user);  // Запис кожного користувача в CSV
+$username = $_SESSION["username"];
+if (!isset($usersResults[$username])) {
+    $usersResults[$username] = [];
 }
-fclose($stream);
+$usersResults[$username][] = $newResult;
 
+$stream = fopen($filePath, "w");
+echo "<pre>";
 
+foreach ($usersResults as $user => $results) {
+    writeCsv($filePath, [$user, json_encode($results)]);
 
-
-
-$stream = fopen("csv/users.csv", "w");
-foreach ($usersData as $user) {
-    if (is_array(end($user))) {
-        $user[count($user) - 1] = json_encode(end($user));
-    }
-    var_dump($user);
-    fputcsv($stream, $user);
 }
 fclose($stream);
 

@@ -1,4 +1,7 @@
-
+<?php
+    session_start();
+    require_once "checkLogin.php";
+?>
 
 <!doctype html>
 <html lang="en">
@@ -13,23 +16,31 @@
 </head>
 <body>
     <?php
-        session_start();
-        require_once 'createUsersArr.php';
+        require_once 'profileDataPreparation.php';
+
+        if (!$_SESSION["isLogin"]) {
+            header("Location: login.php");
+        }
+
         require_once 'themeFunction.php';
         themeFunction();
+        require_once 'getAllTestsFunction.php';
+
+
+
+        require_once 'userTestsArr.php';
     ?>
     <div class="header-line">
         <form action="changeTheme.php" method="POST">
-    <!--        <input type="hidden" name="current_file" value="--><?php //echo htmlspecialchars($_SERVER['PHP_SELF']); ?><!--">-->
             <input type="submit" name="light" value="🌞 Світла">
             <input type="submit" name="dark" value="🌙 Темна">
         </form>
     </div>
     <div class="container-profile">
 
-        <div class="profile-container">
+        <div class="profile-container" style='max-width: 1000px'>
             <div class="profile-image">
-                <img src="<?= $newUsersArr[$_SESSION["username"]]['imagePath'] ?? 'img/profile-default.webp' ?>" alt="Фото користувача" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                <img src="<?= (getAvatarPath($_SESSION["username"])) ?? 'img/profile-default.webp' ?>" alt="Фото користувача" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
             </div>
             <?= $_SESSION["imgErr"] ?? ''?>
             <?php unset($_SESSION["imgErr"]); ?>
@@ -40,7 +51,7 @@
                     <input type="submit" value="send">
                 </form>
             <?php } else {?>
-                <form action="deleteProfileImg.php" method="POST">
+                <form action="profile.php" method="POST">
                     <input type="submit" name="deleteImg" value="Вибрати інше зображення">
                 </form>
             <?php } ?>
@@ -48,9 +59,12 @@
             <h1>Данні про акаунт</h1>
             <div class="profile-info">
                 <b>Ваш юзернейм: <?=  $_SESSION["username"] ?? 'невідома' ?></b> <br>
-                <b>Ваша пошта: <?=  $newUsersArr[$_SESSION["username"]]["email"] ?? 'невідома' ?></b>
+                <b>Ваша пошта: <?=  $newUsersArr[$_SESSION["username"]]["email"] ?? 'невідома' ?></b><br>
+                <b>Ваш телефон: <?=  $newUsersArr[$_SESSION["username"]]["phone"] ?? 'невідомий' ?></b>
                 <div class="btns">
+                    <?php if ($newUsersArr[$_SESSION["username"]]["email"] != "admin") { ?>
                     <a class="start-test" href="index.php">Пройти тест</a>
+                    <?php } ?>
                     <form action="logout.php" method="POST">
                         <input type="submit" name="logout" value="Вийти з акаунта" class="button">
                     </form>
@@ -58,56 +72,118 @@
                 </div>
             </div>
 
-
+            <?php if ($newUsersArr[$_SESSION["username"]]["email"] != "admin") { ?>
 
             <h2>Данні про проходження останнього тесту:</h2>
-            <?php
 
-            function getAllTests($file, $email) {
-                if (!file_exists($file)) return null;
-
-                $results = [];
-                foreach (file($file) as $line) {
-                    $data = str_getcsv($line);
-                    if ($data[1] === $email) {
-                        for ($i = 3; $i < count($data); $i++) {
-                            if (isset($data[$i])) {
-                                $testResult = json_decode(trim($data[$i], '"'), true);
-                                if ($testResult) {
-                                    $results[] = $testResult;
-                                }
-                            }
-                        }
-                        break;
-                    }
-                }
-
-                return $results;
-            }
-            var_dump ($newUsersArr);
-            $tests = getAllTests('csv/users.csv', $newUsersArr[$_SESSION["username"]]["email"]);
-
-            ?>
 
             <div class="test-info">
-                <?php if ($tests) { ?>
+
+                <?php
+                    if (isset($tests)) { ?>
                     <h3>Результати ваших тестів:</h3><br>
-                    <?php foreach ($tests as $test) { ?>
-                        <div class="test-result">
-                            <p>Ви відповіли правильно на <?= $test["correctAnswers"] ?> із 10 питань.</p>
-                            <p>Відсоток правильних відповідей: <?= $test["percentage"] ?> %.</p>
-                            <p>Оцінка: <?= $test["score"] ?> балів.</p>
-                            <p>Дата проходження тесту: <?= $test["testDate"] ?></p>
-                            <p>Час проходження тесту: <?= $test["testDuration"] ?></p>
-                            <br>
-                            <hr>
-                        </div>
-                    <?php } ?>
+                    <table border style='width: 100%'>
+                        <tr>
+                            <th>Правильні відповіді</th>
+                            <th>Відсоток правильних відповідей</th>
+                            <th>Оцінка</th>
+                            <th>Дата проходження</th>
+                            <th>Час проходження</th>
+                        </tr>
+                    <?php
+                    $bestTest = null;
+                    $bestScore = -1;
+
+                    foreach ($tests as $test) {
+                        if ($test["score"] > $bestScore) {
+                            $bestScore = $test["score"];
+                            $bestTest = $test;
+                        }
+                    }
+                    foreach ($tests as $test) {
+
+                        $isBest = ($test === $bestTest) ? 'best-result' : '';
+                        ?>
+                        <tr class="test-result <?= $isBest ?>">
+                            <td><?= $test["correctAnswers"] ?></td>
+                            <td><?= $test["percentage"] ?> %.</td>
+                            <td><?= $test["score"] ?> балів.</td>
+                            <td> <?= $test["testDate"] ?></td>
+                            <td><?= $test["testDuration"] ?></td>
+
+                        </tr>
+                        <?php
+                    }
+                    ?>
+                    </table>
+
                 <?php } else { ?>
                     <p>Немає даних про ваші тести</p>
                 <?php } ?>
             </div>
 
+            <?php } else { ?>
+                <h2>Результати тестів усіх користувачів:</h2>
+                <table border>
+                    <tr>
+                        <th>Аватар</th>
+                        <th>Юзернейм</th>
+                        <th>Пошта</th>
+                        <th>Номер телефону</th>
+                        <th>Правильні відповіді</th>
+                        <th>Відсоток правильних відповідей</th>
+                        <th>Оцінка</th>
+                        <th>Дата проходження</th>
+                        <th>Час проходження</th>
+                        <th>Дія</th>
+                    </tr>
+                    <?php foreach ($newUsersArr as $user) {
+                        $userName = $user["username"];
+                        $userEmail = $user["email"];
+                        $userPhone = $user["phone"];
+                        $tests = getAllTests('csv/usersResults.csv', $user["username"]);
+
+                        if (!empty($tests)) {
+                            // searching of the best result
+                            $bestTest = array_reduce($tests, function ($best, $current) {
+                                return ($best === null || $current['score'] > $best['score']) ? $current : $best;
+                            });
+                            ?>
+                            <tr>
+                                <td>
+                                    <img src="<?= getAvatarPath($user["username"]) ?? "img/profile-default.webp" ?>"
+                                         style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%;"
+                                         width="100px">
+                                </td>
+                                <td><?= $userName ?></td>
+                                <td><?= $userEmail ?></td>
+                                <td><?= $userPhone ?></td>
+                                <td><?= $bestTest['correctAnswers'] ?></td>
+                                <td><?= $bestTest['percentage'] ?>%</td>
+                                <td><?= $bestTest['score'] ?> балів</td>
+                                <td><?= $bestTest['testDate'] ?></td>
+                                <td><?= $bestTest['testDuration'] ?></td>
+                                <td>
+                                    <form action="returnAllUserTestResults.php" method="POST">
+                                        <button type="submit" name="submit" value="<?= $userEmail ?>">Всі результати</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php } else { ?>
+                            <tr>
+                                <td><img src="<?= getAvatarPath($user["username"]) ?? "img/profile-default.webp" ?>"
+                                         style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%;"
+                                         width="100px"></td>
+                                <td><?= $userName ?></td>
+                                <td><?= $userEmail ?></td>
+                                <td><?= $userPhone ?></td>
+                                <td colspan="6">Результати тестів відсутні</td>
+                            </tr>
+                        <?php } ?>
+                    <?php } ?>
+                </table>
+
+            <?php } ?>
 
         </div>
     </div>

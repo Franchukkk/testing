@@ -29,7 +29,7 @@ if (isset($_POST["submitRegistration"])) {
                     throw new Exception("невірний формат номера телефону");
                 }
 
-                if (!preg_match("#^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$#", $_POST["email"])) {
+                if (!preg_match("#^[a-zA-Z][a-zA-Z0-9._%+-]*[a-zA-Z0-9]+@[a-zA-Z0-9-]*[a-zA-Z0-9](\.[a-zA-Z]{2,}){1,2}$#", $_POST["email"])) {
                     throw new Exception("невірний формат емейла");
                 }
 

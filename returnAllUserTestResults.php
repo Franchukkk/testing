@@ -16,29 +16,33 @@ if (isset($_POST["submit"])) {
                 if ($test["percentage"] > $bestPercentage) {
                     $bestPercentage = $test["percentage"];
                 }
-            }
+            } ?>
 
-            echo "<table border>";
-            echo "<tr>";
-            echo "<th>Правильні відповіді</th>";
-            echo "<th>Відсоток правильних відповідей</th>";
-            echo "<th>Оцінка</th>";
-            echo "<th>Дата проходження</th>";
-            echo "<th>Час проходження</th>";
-            echo "</tr>";
+            <table border>
+                <tr>
+                    <th>Правильні відповіді</th>
+                    <th>Відсоток правильних відповідей</th>
+                    <th>Оцінка</th>
+                    <th>Дата проходження</th>
+                    <th>Час проходження</th>
+                </tr>
+            <?php
             foreach ($tests as $test) {
-
-                $tableStyle = ($test["percentage"] == $bestPercentage) ? 'style="background-color: yellow;"' : '';
-                echo "<tr $tableStyle>";
-                echo '<td>' . $test["correctAnswers"] . '</td>';
-                echo '<td>' . $test["percentage"] . ' %</td>';
-                echo '<td>' . $test["score"] . ' балів</td>';
-                echo '<td>' . $test["testDate"] . '</td>';
-                echo '<td>' . $test["testDuration"] . '</td>';
-                echo '</tr>';
+            ?>
+                <tr <?= ($test["percentage"] == $bestPercentage) ? 'style="background-color: yellow;"' : '' ?>>
+                <td> <?= $test["correctAnswers"] ?></td>
+                <td> <?= $test["percentage"] ?> %</td>
+                <td> <?= $test["score"] ?> балів</td>
+                <td> <?= $test["testDate"] ?></td>
+                <td> <?= $test["testDuration"] ?></td>
+                </tr>
+            <?php
             }
-            echo "</table>";
+
         }
     }
 }
-echo "<a href='profile.php'>Назад у профіль</a>";
+?>
+</table>
+<a href='profile.php'>Назад у профіль</a>
+

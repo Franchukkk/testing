@@ -1,6 +1,8 @@
 <?php
     session_start();
     require_once "checkLogin.php";
+    require_once 'profileDataPreparation.php';
+    require_once 'getAllTestsFunction.php';
 ?>
 
 <!doctype html>
@@ -13,20 +15,23 @@
     <title>Profile</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="profile.css">
+    <?php
+        if (isset($_COOKIE["theme"]) && $_COOKIE["theme"] == 'dark') {
+    ?>
+            <link rel="stylesheet" href="stylesNight.css">
+    <?php
+        }
+    ?>
 </head>
 <body>
     <?php
-        require_once 'profileDataPreparation.php';
+
 
         if (!$_SESSION["isLogin"]) {
             header("Location: login.php");
         }
 
-        require_once 'themeFunction.php';
-        themeFunction();
-        require_once 'getAllTestsFunction.php';
-
-
+//        themeFunction();
 
         require_once 'userTestsArr.php';
     ?>
@@ -138,14 +143,9 @@
                         <th>Дія</th>
                     </tr>
                     <?php foreach ($newUsersArr as $user) {
-                        $userName = $user["username"];
-                        $userEmail = $user["email"];
-                        $userPhone = $user["phone"];
-                        $tests = getAllTests('csv/usersResults.csv', $user["username"]);
-
-                        if (!empty($tests)) {
+                        if (!empty(getAllTests('csv/usersResults.csv', $user["username"]))) {
                             // searching of the best result
-                            $bestTest = array_reduce($tests, function ($best, $current) {
+                            $bestTest = array_reduce(getAllTests('csv/usersResults.csv', $user["username"]), function ($best, $current) {
                                 return ($best === null || $current['score'] > $best['score']) ? $current : $best;
                             });
                             ?>
@@ -155,9 +155,9 @@
                                          style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%;"
                                          width="100px">
                                 </td>
-                                <td><?= $userName ?></td>
-                                <td><?= $userEmail ?></td>
-                                <td><?= $userPhone ?></td>
+                                <td><?= $user["username"] ?></td>
+                                <td><?= $user["email"] ?></td>
+                                <td><?= $user["phone"] ?></td>
                                 <td><?= $bestTest['correctAnswers'] ?></td>
                                 <td><?= $bestTest['percentage'] ?>%</td>
                                 <td><?= $bestTest['score'] ?> балів</td>
@@ -165,7 +165,7 @@
                                 <td><?= $bestTest['testDuration'] ?></td>
                                 <td>
                                     <form action="returnAllUserTestResults.php" method="POST">
-                                        <button type="submit" name="submit" value="<?= $userEmail ?>">Всі результати</button>
+                                        <button type="submit" name="submit" value="<?= $user["email"] ?>">Всі результати</button>
                                     </form>
                                 </td>
                             </tr>
@@ -174,9 +174,9 @@
                                 <td><img src="<?= getAvatarPath($user["username"]) ?? "img/profile-default.webp" ?>"
                                          style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%;"
                                          width="100px"></td>
-                                <td><?= $userName ?></td>
-                                <td><?= $userEmail ?></td>
-                                <td><?= $userPhone ?></td>
+                                <td><?= $user["username"] ?></td>
+                                <td><?= $user["email"] ?></td>
+                                <td><?= $user["phone"] ?></td>
                                 <td colspan="6">Результати тестів відсутні</td>
                             </tr>
                         <?php } ?>

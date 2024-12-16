@@ -1,8 +1,5 @@
 <?php
 require_once 'checkRegistration.php';
-require_once 'themeFunction.php';
-
-themeFunction();
 
 if (isset($_SESSION['isLogin']) && $_SESSION['isLogin']) {
     header("Location: profile.php");
@@ -19,6 +16,13 @@ if (isset($_SESSION['isLogin']) && $_SESSION['isLogin']) {
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
     <link rel="stylesheet" href="styles.css">
+    <?php
+    if (isset($_COOKIE["theme"]) && $_COOKIE["theme"] == 'dark') {
+        ?>
+        <link rel="stylesheet" href="stylesNight.css">
+        <?php
+    }
+    ?>
 </head>
 <body>
 

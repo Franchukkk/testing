@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once "csvfunctions.php";
+
 $errorRegister = false;
 if (isset($_POST["submitRegistration"])) {
     $usersData = readCsv("csv/users.csv");
@@ -25,11 +26,12 @@ if (isset($_POST["submitRegistration"])) {
 
                 //check if email and phone number are valid
 
-                if (!preg_match('#^/\+?(\d{1,3})?[- ]?(\(?\d{1,4}\)?[- ]?)\(?\d{2,4}\)?[- ]?\d{2,4}[- ]?\d{2,4}[- ]?\d{0,4}$#', $_POST["phone"])) {
+//                if (!preg_match('#^\+?(\d{1,3})?[- ]?(\(?\d{1,4}\)?[- ]?)\(?\d{2,4}\)?[- ]?\d{2,4}[- ]?\d{2,4}[- ]?\d{0,4}$#', $_POST["phone"])) {
+                if (!preg_match('#^\+[0-9]{1,4}[ -()]?(( [0-9]{1,3} )|\([0-9]{1,3}\)|[0-9]{1,3})[ -]?([0-9][ -]?){6}[0-9]$#', $_POST["phone"])) {
                     throw new Exception("невірний формат номера телефону");
                 }
 
-                if (!preg_match("#^[a-zA-Z][a-zA-Z0-9._%+-]*[a-zA-Z0-9]+@[a-zA-Z0-9-]*[a-zA-Z0-9](\.[a-zA-Z]{2,}){1,2}$#", $_POST["email"])) {
+                if (!preg_match("#^[a-zA-Z][a-zA-Z0-9._%+-]*[a-zA-Z0-9]@[a-zA-Z0-9-]*[a-zA-Z0-9](\.[a-zA-Z]{2,})?(\.[a-zA-Z]{2,3})$#", $_POST["email"])) {
                     throw new Exception("невірний формат емейла");
                 }
 

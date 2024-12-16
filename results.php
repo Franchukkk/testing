@@ -1,7 +1,6 @@
 <?php
     session_start();
-    require_once 'themeFunction.php';
-    themeFunction();
+
 ?>
 
 <!doctype html>
@@ -11,6 +10,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Результати</title>
+    <?php
+    if (isset($_COOKIE["theme"]) && $_COOKIE["theme"] == 'dark') {
+        ?>
+        <link rel="stylesheet" href="stylesNight.css">
+        <?php
+    }
+    ?>
 </head>
 <body>
     <a href="profile.php">В профіль</a>
